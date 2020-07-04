@@ -2,6 +2,8 @@ package com.fyq;
 
 import com.fyq.entity.HotList;
 import com.fyq.mapper.HotListMapper;
+import com.fyq.task.HotTask;
+import com.fyq.utils.ExecutorUtil;
 import com.fyq.utils.MybatisHelper;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
@@ -12,8 +14,10 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @description: jsoup爬虫获取网页信息
@@ -23,24 +27,12 @@ import java.util.Random;
 
 public class GetHtml {
     public static void main(String[] args) {
-        SqlSession sqlSession = MybatisHelper.getSqlSessionLocal();
-        HotListMapper mapper = sqlSession.getMapper(HotListMapper.class);
-        //String url = "http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2015/index.html";
-        //String type = "provincetr";
-        String url = "http://top.baidu.com/";
-        String type = "list";
-        GetHtml html = new GetHtml();
-        List<String[]> result = html.getResult(url, type);
-        for (String[] strings : result) {
-            HotList hotList = new HotList();
-            hotList.setSourceFrom(strings[0]);
-            hotList.setTitleContent(strings[1]);
-            hotList.setTargetUrl(strings[2]);
-            mapper.insert(hotList);
-            System.out.println("遍历: " + Arrays.toString(strings));
-        }
-        sqlSession.commit();
-        sqlSession.close();
+        Calendar calendar = Calendar.getInstance();
+        int second = calendar.get(Calendar.SECOND);
+        long millisecond = calendar.get(Calendar.MILLISECOND);
+        long minuteDelay = 60 * 1000L - second * 1000L - millisecond;
+        //一分钟拉取一次百度热搜榜的热搜并入库
+        ExecutorUtil.scheduleWithFixedDelay(new HotTask(), minuteDelay, 60 * 1000, TimeUnit.MILLISECONDS);
     }
 
 
