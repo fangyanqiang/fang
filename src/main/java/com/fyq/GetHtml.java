@@ -1,19 +1,15 @@
 package com.fyq;
 
-import com.fyq.entity.HotList;
-import com.fyq.mapper.HotListMapper;
+import com.fyq.task.GetStockTask;
 import com.fyq.task.HotTask;
 import com.fyq.utils.ExecutorUtil;
-import com.fyq.utils.MybatisHelper;
 import com.google.common.collect.Lists;
-import org.apache.ibatis.session.SqlSession;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
@@ -21,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @description: jsoup爬虫获取网页信息
- * @author: com.fyq
+ * @author: fyq
  * @date: 2020-07-03 09:16
  **/
 
@@ -33,6 +29,9 @@ public class GetHtml {
         long minuteDelay = 60 * 1000L - second * 1000L - millisecond;
         //一分钟拉取一次百度热搜榜的热搜并入库
         ExecutorUtil.scheduleWithFixedDelay(new HotTask(), minuteDelay, 60 * 1000, TimeUnit.MILLISECONDS);
+
+        //模拟浏览器进行操作
+        ExecutorUtil.scheduleWithFixedDelay(new GetStockTask(), minuteDelay, 60 * 60 * 1000, TimeUnit.MILLISECONDS);
     }
 
 
